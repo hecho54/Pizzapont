@@ -735,6 +735,107 @@
       stampIn 1s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
       float    6s 1.6s ease-in-out infinite;
   }
+
+  /* =====================
+     RESZPONZÍV – MOBIL
+  ===================== */
+  @media (max-width: 768px) {
+
+    /* NAV */
+    nav {
+      padding: 1rem 1.5rem;
+    }
+    .nav-links { display: none; }
+    .nav-cta { font-size: 11px; padding: 0.5rem 1rem; }
+
+    /* HERO */
+    .hero {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: auto;
+    }
+    .hero::after { display: none; }
+
+    .hero-left {
+      padding: 5rem 2rem 3rem;
+      order: 1;
+    }
+    .title-solid,
+    .title-outline {
+      font-size: clamp(72px, 20vw, 100px);
+    }
+    .hero-subtitle { font-size: 17px; }
+    .hero-actions { flex-wrap: wrap; }
+    .hero-badge { margin-left: auto; }
+    .hero-stats-row { flex-wrap: wrap; gap: 0.5rem; }
+
+    .hero-right {
+      order: 2;
+      min-height: 340px;
+      padding: 3rem 2rem;
+    }
+    .pizza-visual {
+      width: 260px; height: 260px;
+    }
+
+    /* MENU KÉPEK */
+    .menu-images {
+      grid-template-columns: 1fr;
+      padding: 0 1.2rem;
+      gap: 1.2rem;
+    }
+    .section-header { padding: 3rem 1.5rem 2rem; }
+
+    /* ABOUT */
+    .about-section {
+      grid-template-columns: 1fr;
+    }
+    .about-left {
+      padding: 4rem 2rem;
+    }
+    .about-left::after { display: none; }
+    .about-stats { gap: 1.5rem; }
+    .about-right {
+      padding: 3rem 2rem;
+      border-top: none;
+      border-left: 4px solid var(--red);
+    }
+    .feature-item::before { display: none; }
+
+    /* CONTACT */
+    .contact-section {
+      grid-template-columns: 1fr;
+    }
+    .contact-left {
+      padding: 4rem 2rem;
+    }
+    .contact-right {
+      padding: 3rem 2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-left { padding: 4.5rem 1.5rem 2.5rem; }
+    .hero-right { min-height: 280px; }
+    .pizza-visual { width: 210px; height: 210px; }
+    .btn-primary, .btn-outline {
+      width: 100%; text-align: center;
+    }
+    .hero-badge { margin-left: 0; }
+    .hero-actions { flex-direction: column; }
+    .about-left { padding: 3rem 1.5rem; }
+    .about-right { padding: 2.5rem 1.5rem; }
+    .contact-left { padding: 3rem 1.5rem; }
+    .contact-right { padding: 2.5rem 1.5rem; }
+  }
 </style>
 </head>
 <body>
