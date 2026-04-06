@@ -897,11 +897,11 @@ function buildOrderText() {
 
 function submitOrder(isMobile) {
   const prefix = isMobile ? 'm' : '';
-  const name    = document.getElementById(prefix + 'CustName').value.trim();
-  const phone   = document.getElementById(prefix + 'CustPhone').value.trim();
+  const name    = document.getElementById(prefix + 'custName').value.trim();
+  const phone   = document.getElementById(prefix + 'custPhone').value.trim();
   const address = orderType === 'delivery'
-    ? document.getElementById(prefix + 'CustAddress').value.trim() : '';
-  const note    = document.getElementById(prefix + 'CustNote').value.trim();
+    ? document.getElementById(prefix + 'custAddress').value.trim() : '';
+  const note    = document.getElementById(prefix + 'custNote').value.trim();
 
   if (!name || !phone || (orderType === 'delivery' && !address)) {
     alert('Kérlek töltsd ki a kötelező mezőket!');
