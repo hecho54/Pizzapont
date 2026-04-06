@@ -596,10 +596,10 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 //  1. Regisztrálj: https://www.emailjs.com
 //  2. Cseréld le az alábbi értékeket
 // ─────────────────────────────────────────
-const EMAILJS_PUBLIC_KEY  = 'IDE_A_PUBLIC_KEY';
-const EMAILJS_SERVICE_ID  = 'IDE_A_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'IDE_A_TEMPLATE_ID';
-const PIZZERIA_EMAIL      = 'info@pizzapont.hu'; // a pizzéria emailje
+const EMAILJS_PUBLIC_KEY  = '2RtUyxhX9ot1mPcyp';
+const EMAILJS_SERVICE_ID  = 'service_curvoif';
+const EMAILJS_TEMPLATE_ID = 'template_2pf0tx5';
+const PIZZERIA_EMAIL      = 'hecho54@gmail.com'; // a pizzéria emailje
 
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
@@ -675,7 +675,8 @@ const catLabels = {
 // ─────────────────────────────────────────
 let cart = {};          // id → qty
 let orderType = 'delivery';
-const DELIVERY_FEE = 500;
+const DELIVERY_FEE = 0;
+const DELIVERY_LABEL = 'Ingyenes';
 let activeFilter = 'all';
 
 // ─────────────────────────────────────────
@@ -798,7 +799,7 @@ function renderCart() {
   // Desktop totals
   document.getElementById('subtotal').textContent  = sub.toLocaleString('hu-HU') + ' Ft';
   document.getElementById('deliveryFee').textContent = orderType === 'delivery'
-    ? DELIVERY_FEE + ' Ft' : 'Ingyenes';
+    ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes';
   document.getElementById('totalPrice').innerHTML   = total.toLocaleString('hu-HU') + ' <span>Ft</span>';
 
   // Mobile bar
@@ -828,7 +829,7 @@ function renderCart() {
   // Mobile totals
   document.getElementById('mSubtotal').textContent   = sub.toLocaleString('hu-HU') + ' Ft';
   document.getElementById('mDeliveryFee').textContent = orderType === 'delivery'
-    ? DELIVERY_FEE + ' Ft' : 'Ingyenes';
+    ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes';
   document.getElementById('mTotalPrice').innerHTML    = total.toLocaleString('hu-HU') + ' <span>Ft</span>';
 
   // Submit button state
@@ -918,7 +919,7 @@ function submitOrder(isMobile) {
     customer_phone: phone,
     customer_address: address || '–',
     order_items:  buildOrderText(),
-    delivery_fee: orderType === 'delivery' ? DELIVERY_FEE + ' Ft' : 'Ingyenes',
+    delivery_fee: orderType === 'delivery' ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes',
     order_total:  getTotal().toLocaleString('hu-HU') + ' Ft',
     customer_note: note || '–',
   };
