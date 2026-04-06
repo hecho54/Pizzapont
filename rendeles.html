@@ -59,7 +59,8 @@ nav {
   color: rgba(255,255,255,0.45);
   transition: color 0.25s;
 }
-.nav-back:hover { color: white; }
+.nav-back:active { color: white; }
+@media (hover: hover) { .nav-back:hover { color: white; } }
 .nav-back::before { content: '← '; }
 
 /* ── LAYOUT ── */
@@ -120,7 +121,8 @@ nav {
   padding: 0.45rem 0.9rem;
   transition: all 0.25s var(--ease);
 }
-.filter-btn:hover { color: white; border-color: rgba(255,255,255,0.2); }
+.filter-btn:active { color: white; border-color: rgba(255,255,255,0.2); }
+@media (hover: hover) { .filter-btn:hover { color: white; border-color: rgba(255,255,255,0.2); } }
 .filter-btn.active {
   background: var(--red); border-color: var(--red); color: white;
 }
@@ -176,7 +178,8 @@ nav {
   transition: background 0.2s, border-color 0.2s;
   user-select: none;
 }
-.qty-btn:hover { background: var(--red); border-color: var(--red); }
+.qty-btn:active { background: var(--red); border-color: var(--red); }
+@media (hover: hover) { .qty-btn:hover { background: var(--red); border-color: var(--red); } }
 .qty-btn.plus { border-left: none; }
 .qty-btn.minus { border-right: none; }
 .qty-num {
@@ -260,7 +263,8 @@ nav {
   transition: color 0.2s;
   line-height: 1;
 }
-.cart-item-remove:hover { color: var(--red); }
+.cart-item-remove:active { color: var(--red); }
+@media (hover: hover) { .cart-item-remove:hover { color: var(--red); } }
 
 /* Cart footer */
 .cart-footer {
@@ -312,7 +316,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   text-transform: uppercase; padding: 0.9rem;
   transition: background 0.25s var(--ease), transform 0.2s;
 }
-.btn-order:hover:not(:disabled) { background: var(--red-dark); }
+.btn-order:active:not(:disabled) { background: var(--red-dark); transform: scale(0.98); }
+@media (hover: hover) { .btn-order:hover:not(:disabled) { background: var(--red-dark); } }
 .btn-order:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-order:active:not(:disabled) { transform: scale(0.98); }
 
@@ -342,7 +347,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   text-transform: uppercase; padding: 0.8rem 2rem;
   transition: background 0.25s;
 }
-.conf-back:hover { background: var(--red-dark); }
+.conf-back:active { background: var(--red-dark); }
+@media (hover: hover) { .conf-back:hover { background: var(--red-dark); } }
 
 /* ── MOBILE CART TOGGLE ── */
 .mobile-cart-bar {
