@@ -21,6 +21,20 @@
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* Tap delay és stuck hover fix iOS/Android */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+@media (hover: none) {
+  .qty-btn, .filter-btn, .btn-order,
+  .type-btn, .cart-item-remove, .nav-back,
+  .conf-back, .mobile-cart-bar {
+    transition: none !important;
+  }
+}
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--dark);
