@@ -88,6 +88,7 @@ nav {
   min-width: 0;
   padding: 2rem 1.5rem;
   overflow-y: auto;
+  touch-action: pan-y; /* iOS: csak függőleges scroll, tap = kattintás azonnal */
 }
 .cart-panel {
   width: 360px;
@@ -707,11 +708,21 @@ function renderPizzas() {
       </div>
       <div class="pizza-price">${p.price.toLocaleString('hu-HU')}<span>Ft</span></div>
       <div class="qty-ctrl">
-        <button class="qty-btn minus" onclick="updateQty(${p.id},-1)">−</button>
+        <button class="qty-btn minus" data-id="${p.id}" data-delta="-1">−</button>
         <div class="qty-num ${qty > 0 ? 'active' : ''}" id="qty-${p.id}">${qty}</div>
-        <button class="qty-btn plus" onclick="updateQty(${p.id},1)">+</button>
+        <button class="qty-btn plus"  data-id="${p.id}" data-delta="1">+</button>
       </div>
     `;
+    // touchend: azonnal reagál az első érintésre iOS-on is
+    card.querySelectorAll('.qty-btn').forEach(function(btn) {
+      btn.addEventListener('touchend', function(e) {
+        e.preventDefault(); // megakadályozza a késleltetett click eseményt
+        updateQty(parseInt(btn.dataset.id), parseInt(btn.dataset.delta));
+      }, { passive: false });
+      btn.addEventListener('click', function() {
+        updateQty(parseInt(btn.dataset.id), parseInt(btn.dataset.delta));
+      });
+    });
     list.appendChild(card);
   });
 }
