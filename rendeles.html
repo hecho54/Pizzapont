@@ -897,11 +897,14 @@ function buildOrderText() {
 
 function submitOrder(isMobile) {
   const prefix = isMobile ? 'm' : '';
-  const name    = document.getElementById(prefix + 'custName').value.trim();
-  const phone   = document.getElementById(prefix + 'custPhone').value.trim();
+  const ids = isMobile
+    ? { name: 'mCustName', phone: 'mCustPhone', address: 'mCustAddress', note: 'mCustNote' }
+    : { name: 'custName',  phone: 'custPhone',  address: 'custAddress',  note: 'custNote'  };
+  const name    = document.getElementById(ids.name).value.trim();
+  const phone   = document.getElementById(ids.phone).value.trim();
   const address = orderType === 'delivery'
-    ? document.getElementById(prefix + 'custAddress').value.trim() : '';
-  const note    = document.getElementById(prefix + 'custNote').value.trim();
+    ? document.getElementById(ids.address).value.trim() : '';
+  const note    = document.getElementById(ids.note).value.trim();
 
   if (!name || !phone || (orderType === 'delivery' && !address)) {
     alert('Kérlek töltsd ki a kötelező mezőket!');
