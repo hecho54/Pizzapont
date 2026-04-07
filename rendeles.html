@@ -586,7 +586,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 <div class="confirmation" id="confirmation">
   <div class="conf-icon">✅</div>
   <div class="conf-title">Rendelés <em>leadva!</em></div>
-  <p class="conf-text">Köszönjük a rendelésed! Hamarosan felvesszük veled a kapcsolatot a megadott telefonszámon.</p>
+  <p class="conf-text">Köszönjük a rendelésed! Hamarosan elkészítjük. 🍕</p>
   <a href="pizzapont.html" class="conf-back">Vissza a főoldalra</a>
 </div>
 
@@ -944,6 +944,9 @@ document.getElementById('mSubmitBtn').addEventListener('click', () => submitOrde
 // ─────────────────────────────────────────
 renderPizzas();
 renderCart();
+
+// Cím mező megjelenítése alapból (kiszállítás az alapértelmezett)
+document.querySelectorAll('.address-fields').forEach(el => el.classList.add('show'));
 </script>
 </body>
 </html>
