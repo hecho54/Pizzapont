@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rendelés – Pizza Pont Nagykőrös</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root {
+  --dark:     #111111;
+  --dark-2:   #1A1A1A;
+  --dark-3:   #222222;
+  --red:      #D62B2B;
+  --red-dark: #A81F1F;
+  --cream:    #FDF6EE;
+  --gray:     #888;
+  --muted:    #555;
+  --border:   rgba(255,255,255,0.07);
+  --ease:     cubic-bezier(.25,.46,.45,.94);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* Tap delay és stuck hover fix iOS/Android */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+@media (hover: none) {
+  .qty-btn, .filter-btn, .btn-order,
+  .type-btn, .cart-item-remove, .nav-back,
+  .conf-back, .mobile-cart-bar {
+    transition: none !important;
+  }
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: white;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.85rem 1.5rem;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(214,43,43,0.2);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.nav-logo-badge {
+  width: 32px; height: 32px; border-radius: 50%;
+  overflow: hidden; border: 1.5px solid var(--red); flex-shrink: 0;
+}
+.nav-logo-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nav-logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: white;
+}
+.nav-logo-text em { color: var(--red); font-style: normal; }
+.nav-back {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  color: rgba(255,255,255,0.45);
+  transition: color 0.25s;
+}
+.nav-back:active { color: white; }
+@media (hover: hover) { .nav-back:hover { color: white; } }
+.nav-back::before { content: '← '; }
+
+/* ── LAYOUT ── */
+.page-wrap {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 54px;
+}
+.pizza-panel {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  touch-action: pan-y; /* iOS: csak függőleges scroll, tap = kattintás azonnal */
+}
+.cart-panel {
+  width: 360px;
+  flex-shrink: 0;
+  background: var(--dark-2);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky;
+  top: 54px;
+  height: calc(100vh - 54px);
+  overflow-y: auto;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 2rem;
+}
+.page-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--red);
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 0.5rem;
+}
+.page-tag::before { content: ''; width: 18px; height: 1.5px; background: var(--red); }
+.page-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 900; line-height: 0.9;
+  letter-spacing: 1px;
+}
+.page-title em { color: var(--red); font-style: italic; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.filter-btn {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  color: rgba(255,255,255,0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer;
+  padding: 0.45rem 0.9rem;
+  transition: all 0.25s var(--ease);
+}
+.filter-btn:active { color: white; border-color: rgba(255,255,255,0.2); }
+@media (hover: hover) { .filter-btn:hover { color: white; border-color: rgba(255,255,255,0.2); } }
+.filter-btn.active {
+  background: var(--red); border-color: var(--red); color: white;
+}
+
+/* ── PIZZA LIST ── */
+.pizza-list {
+  display: flex; flex-direction: column; gap: 0;
+}
+.pizza-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 800; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--red);
+  padding: 1.2rem 0 0.6rem;
+  border-bottom: 1px solid rgba(214,43,43,0.2);
+  margin-bottom: 0;
+}
+.pizza-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+  cursor: default;
+}
+.pizza-card:last-child { border-bottom: none; }
+.pizza-info { flex: 1; min-width: 0; }
+.pizza-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 800; letter-spacing: 0.5px;
+  color: white; line-height: 1;
+  margin-bottom: 2px;
+}
+.pizza-desc {
+  font-size: 11.5px; color: var(--gray);
+  line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 340px;
+}
+.pizza-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 800;
+  color: white; white-space: nowrap;
+  flex-shrink: 0;
+}
+.pizza-price span { font-size: 11px; font-weight: 400; color: var(--gray); margin-left: 2px; }
+.qty-ctrl {
+  display: flex; align-items: center; gap: 0; flex-shrink: 0;
+}
+.qty-btn {
+  width: 30px; height: 30px;
+  background: var(--dark-3); border: 1px solid var(--border);
+  color: white; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  user-select: none;
+}
+.qty-btn:active { background: var(--red); border-color: var(--red); }
+@media (hover: hover) { .qty-btn:hover { background: var(--red); border-color: var(--red); } }
+.qty-btn.plus { border-left: none; }
+.qty-btn.minus { border-right: none; }
+.qty-num {
+  width: 34px; height: 30px;
+  background: var(--dark-3); border: 1px solid var(--border);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+.qty-num.active { background: rgba(214,43,43,0.15); border-color: rgba(214,43,43,0.4); }
+
+/* ── CART PANEL ── */
+.cart-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cart-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 900; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cart-count {
+  background: var(--red);
+  font-size: 12px; font-weight: 700;
+  padding: 1px 7px; border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0;
+}
+
+/* Order type toggle */
+.order-type {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; margin-top: 1rem;
+  border: 1px solid var(--border);
+}
+.type-btn {
+  padding: 0.55rem;
+  background: transparent; border: none; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(255,255,255,0.4);
+  transition: all 0.25s var(--ease);
+}
+.type-btn.active { background: var(--red); color: white; }
+
+/* Cart items */
+.cart-items {
+  flex: 1; overflow-y: auto;
+  padding: 0 1.5rem;
+}
+.cart-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 120px; gap: 0.5rem;
+  color: var(--muted); font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.cart-empty-icon { font-size: 28px; opacity: 0.4; }
+.cart-item {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.cart-item:last-child { border-bottom: none; }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 800; letter-spacing: 0.3px;
+}
+.cart-item-qty { font-size: 12px; color: var(--gray); }
+.cart-item-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; white-space: nowrap;
+}
+.cart-item-remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 16px;
+  padding: 2px 4px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.cart-item-remove:active { color: var(--red); }
+@media (hover: hover) { .cart-item-remove:hover { color: var(--red); } }
+
+/* Cart footer */
+.cart-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cart-line {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--gray);
+  padding: 0.3rem 0;
+}
+.cart-line.total {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 800;
+  color: white; margin-top: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+.cart-line.total span { color: var(--red); }
+
+/* Order form */
+.order-form { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.form-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--gray);
+  display: block; margin-bottom: 3px;
+}
+.form-input {
+  width: 100%;
+  background: var(--dark-3); border: 1px solid var(--border);
+  color: white; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 0.6rem 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: rgba(214,43,43,0.5); }
+.form-input::placeholder { color: var(--muted); }
+.form-input.error { border-color: var(--red); }
+textarea.form-input { resize: vertical; min-height: 60px; }
+.address-fields { display: none; }
+.address-fields.show { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.btn-order {
+  width: 100%; margin-top: 0.5rem;
+  background: var(--red); color: white; border: none; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; padding: 0.9rem;
+  transition: background 0.25s var(--ease), transform 0.2s;
+}
+.btn-order:active:not(:disabled) { background: var(--red-dark); transform: scale(0.98); }
+@media (hover: hover) { .btn-order:hover:not(:disabled) { background: var(--red-dark); } }
+.btn-order:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-order:active:not(:disabled) { transform: scale(0.98); }
+
+/* ── CONFIRMATION ── */
+.confirmation {
+  display: none;
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(10,10,10,0.96);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem; text-align: center;
+  padding: 2rem;
+}
+.confirmation.show { display: flex; }
+.conf-icon { font-size: 52px; }
+.conf-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 42px; font-weight: 900; letter-spacing: 1px;
+}
+.conf-title em { color: var(--red); font-style: normal; }
+.conf-text { font-size: 14px; color: var(--gray); max-width: 340px; line-height: 1.6; }
+.conf-back {
+  margin-top: 0.5rem;
+  display: inline-block;
+  background: var(--red); color: white; text-decoration: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; padding: 0.8rem 2rem;
+  transition: background 0.25s;
+}
+.conf-back:active { background: var(--red-dark); }
+@media (hover: hover) { .conf-back:hover { background: var(--red-dark); } }
+
+/* ── MOBILE CART TOGGLE ── */
+.mobile-cart-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+  background: var(--red);
+  padding: 0.9rem 1.5rem;
+  justify-content: space-between; align-items: center;
+  cursor: pointer;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+}
+.mobile-cart-bar-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.mobile-cart-bar-total {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 900;
+}
+
+/* Mobile cart drawer */
+.mobile-cart-drawer {
+  display: none;
+  position: fixed; inset: 0; z-index: 160;
+  flex-direction: column;
+}
+.mobile-cart-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.7);
+}
+.mobile-cart-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--dark-2);
+  border-top: 1px solid var(--border);
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease);
+}
+.mobile-cart-sheet.open { transform: translateY(0); }
+.mobile-cart-handle {
+  text-align: center; padding: 0.7rem;
+  cursor: pointer; flex-shrink: 0;
+}
+.mobile-cart-handle::after {
+  content: '';
+  display: inline-block; width: 36px; height: 3px;
+  background: rgba(255,255,255,0.2); border-radius: 2px;
+}
+.mobile-cart-inner { overflow-y: auto; padding: 0 1.2rem 1.2rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .cart-panel { display: none; }
+  .pizza-panel { padding: 1.5rem 1.2rem 5rem; }
+  .mobile-cart-bar { display: flex; }
+  .mobile-cart-bar.hidden { display: none; }
+  /* .mobile-cart-drawer display-t a JS kezeli (openMobileCart / closeMobileCart) */
+}
+@media (max-width: 480px) {
+  .page-title { font-size: 32px; }
+  .pizza-name { font-size: 16px; }
+  .pizza-desc { font-size: 11px; }
+  .pizza-price { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="pizzapont.html" class="nav-logo">
+    <div class="nav-logo-badge"><img src="Images/Cover1.jpg" alt="Pizza Pont"></div>
+    <span class="nav-logo-text">Pizza <em>Pont</em></span>
+  </a>
+  <a href="pizzapont.html" class="nav-back">Vissza a főoldalra</a>
+</nav>
+
+<!-- MAIN LAYOUT -->
+<div class="page-wrap">
+
+  <!-- LEFT: PIZZA LIST -->
+  <div class="pizza-panel">
+    <div class="page-header">
+      <div class="page-tag">Rendelés</div>
+      <h1 class="page-title">Válaszd ki <em>pizzáidat</em></h1>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">Mind</button>
+      <button class="filter-btn" data-filter="2350">Alap</button>
+      <button class="filter-btn" data-filter="2650">Klasszik</button>
+      <button class="filter-btn" data-filter="2850">Prémium</button>
+      <button class="filter-btn" data-filter="2950">Különleges</button>
+    </div>
+
+    <div class="pizza-list" id="pizzaList"></div>
+  </div>
+
+  <!-- RIGHT: CART (desktop) -->
+  <div class="cart-panel">
+    <div class="cart-header">
+      <div class="cart-title">
+        Kosár
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+      <div class="order-type">
+        <button class="type-btn active" data-type="delivery">🛵 Kiszállítás</button>
+        <button class="type-btn" data-type="pickup">🏪 Elvitel</button>
+      </div>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <span class="cart-empty-icon">🍕</span>
+        <span>Még üres a kosár</span>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-line" id="subtotalLine">
+        <span>Részösszeg</span><span id="subtotal">0 Ft</span>
+      </div>
+      <div class="cart-line" id="deliveryLine">
+        <span>Kiszállítás</span><span id="deliveryFee">500 Ft</span>
+      </div>
+      <div class="cart-line total">
+        <span>Összesen</span><span id="totalPrice">0 <span>Ft</span></span>
+      </div>
+
+      <form class="order-form" id="orderForm" onsubmit="return false;">
+        <div>
+          <label class="form-label">Neved *</label>
+          <input class="form-input" id="custName" type="text" placeholder="Kovács János" required>
+        </div>
+        <div>
+          <label class="form-label">Telefonszám *</label>
+          <input class="form-input" id="custPhone" type="tel" placeholder="+36 30 123 4567" required>
+        </div>
+        <div class="address-fields" id="addressFields">
+          <div>
+            <label class="form-label">Cím *</label>
+            <input class="form-input" id="custAddress" type="text" placeholder="Petőfi utca 12.">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Megjegyzés</label>
+          <textarea class="form-input" id="custNote" placeholder="pl. csöngő ne működjön..."></textarea>
+        </div>
+        <button class="btn-order" id="submitBtn" disabled>Rendelés leadása</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE CART BAR -->
+<div class="mobile-cart-bar hidden" id="mobileCartBar" onclick="openMobileCart()">
+  <span class="mobile-cart-bar-text">🛒 Kosár megtekintése</span>
+  <span class="mobile-cart-bar-total" id="mobileTotal">0 Ft</span>
+</div>
+
+<!-- MOBILE CART DRAWER -->
+<div class="mobile-cart-drawer" id="mobileCartDrawer">
+  <div class="mobile-cart-overlay" onclick="closeMobileCart()"></div>
+  <div class="mobile-cart-sheet" id="mobileCartSheet">
+    <div class="mobile-cart-handle" onclick="closeMobileCart()"></div>
+    <div class="mobile-cart-inner">
+
+      <div class="order-type" style="margin-bottom:1rem;">
+        <button class="type-btn active" data-type="delivery">🛵 Kiszállítás</button>
+        <button class="type-btn" data-type="pickup">🏪 Elvitel</button>
+      </div>
+
+      <div id="mobileCartItems">
+        <div class="cart-empty">
+          <span class="cart-empty-icon">🍕</span>
+          <span>Még üres a kosár</span>
+        </div>
+      </div>
+
+      <div style="margin-top:0.8rem;">
+        <div class="cart-line" id="mSubtotalLine">
+          <span>Részösszeg</span><span id="mSubtotal">0 Ft</span>
+        </div>
+        <div class="cart-line" id="mDeliveryLine">
+          <span>Kiszállítás</span><span id="mDeliveryFee">500 Ft</span>
+        </div>
+        <div class="cart-line total">
+          <span>Összesen</span><span id="mTotalPrice">0 <span>Ft</span></span>
+        </div>
+      </div>
+
+      <form class="order-form" id="mOrderForm" onsubmit="return false;" style="margin-top:0.8rem;">
+        <div>
+          <label class="form-label">Neved *</label>
+          <input class="form-input" id="mCustName" type="text" placeholder="Kovács János">
+        </div>
+        <div>
+          <label class="form-label">Telefonszám *</label>
+          <input class="form-input" id="mCustPhone" type="tel" placeholder="+36 30 123 4567">
+        </div>
+        <div class="address-fields" id="mAddressFields">
+          <div>
+            <label class="form-label">Cím *</label>
+            <input class="form-input" id="mCustAddress" type="text" placeholder="Petőfi utca 12.">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Megjegyzés</label>
+          <textarea class="form-input" id="mCustNote" placeholder="pl. csöngő ne működjön..."></textarea>
+        </div>
+        <button class="btn-order" id="mSubmitBtn" disabled>Rendelés leadása</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div class="confirmation" id="confirmation">
+  <div class="conf-icon">✅</div>
+  <div class="conf-title">Rendelés <em>leadva!</em></div>
+  <p class="conf-text">Köszönjük a rendelésed! Hamarosan elkészítjük. 🍕</p>
+  <a href="pizzapont.html" class="conf-back">Vissza a főoldalra</a>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  EMAILJS KONFIGURÁCIÓ
+//  1. Regisztrálj: https://www.emailjs.com
+//  2. Cseréld le az alábbi értékeket
+// ─────────────────────────────────────────
+const EMAILJS_PUBLIC_KEY  = '2RtUyxhX9ot1mPcyp';
+const EMAILJS_SERVICE_ID  = 'service_curvoif';
+const EMAILJS_TEMPLATE_ID = 'template_2pf0tx5';
+const PIZZERIA_EMAIL      = 'hecho54@gmail.com'; // a pizzéria emailje
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+// ─────────────────────────────────────────
+//  PIZZA ADATOK
+// ─────────────────────────────────────────
+const pizzas = [
+  // ALAP
+  { id:1,  name:'MARGHERITA',   desc:'paradicsomos alap, sajt',                                               price:2350, cat:2350 },
+  { id:2,  name:'SONKÁS',       desc:'paradicsomos alap, sonka, sajt',                                        price:2450, cat:2350 },
+  // KLASSZIK
+  { id:3,  name:'TARJAS',       desc:'paradicsomos alap, tarja, sajt',                                        price:2650, cat:2650 },
+  { id:4,  name:'SZALÁMI',      desc:'paradicsomos alap, szalámi, sajt',                                      price:2650, cat:2650 },
+  { id:5,  name:'KOLBÁSZOS',    desc:'paradicsomos alap, kolbász, sajt',                                      price:2650, cat:2650 },
+  { id:6,  name:'BACONOS',      desc:'paradicsomos alap, bacon, sajt',                                        price:2650, cat:2650 },
+  { id:7,  name:'KUKORICÁS',    desc:'paradicsomos alap, sonka, kukorica, sajt',                              price:2650, cat:2650 },
+  { id:8,  name:'GOMBÁS',       desc:'paradicsomos alap, sonka, gomba, sajt',                                 price:2650, cat:2650 },
+  { id:9,  name:'KUSZA',        desc:'paradicsomos alap, kukorica, szalámi, sajt',                            price:2650, cat:2650 },
+  { id:10, name:'FEHÉR',        desc:'tejfölös alap, sonka, sajt',                                            price:2650, cat:2650 },
+  { id:11, name:'SONGOKU',      desc:'paradicsomos alap, sonka, gomba, kukorica, szalámi, sajt',              price:2650, cat:2650 },
+  { id:12, name:'HAWAII',       desc:'paradicsomos alap, sonka, ananász, kukorica, sajt',                     price:2650, cat:2650 },
+  { id:13, name:'KUKKOL',       desc:'paradicsomos alap, kolbász, kukorica, sajt',                            price:2650, cat:2650 },
+  { id:14, name:'VEGA',         desc:'paradicsomos alap, kukorica, gomba, paprika, zöldborsó, sajt',          price:2650, cat:2650 },
+  // PRÉMIUM
+  { id:15, name:'ANGOL',        desc:'paradicsomos alap, bacon, tikörtüske, hagymachips, sajt',               price:2850, cat:2850 },
+  { id:16, name:'NÉGYSAJTOS',   desc:'paradicsomos alap, gouda, mozzarella, feta, márványsajt',               price:2850, cat:2850 },
+  { id:17, name:'LAZA',         desc:'paradicsomos alap, sonka, kolbász, sajt',                               price:2850, cat:2850 },
+  { id:18, name:'NAPSUGÁR',     desc:'paradicsomos alap, bacon, tojás, sajt',                                 price:2850, cat:2850 },
+  { id:19, name:'BUKSZA',       desc:'paradicsomos alap, bacon, kukorica, szalámi, sajt',                     price:2850, cat:2850 },
+  { id:20, name:'KULISSZA',     desc:'tejfölös alap, sonka, szalámi, kukorica, sajt',                         price:2850, cat:2850 },
+  { id:21, name:'JUHÁSZ',       desc:'tejfölös alap, bacon, szalámi, lilahagyma, sajt',                       price:2850, cat:2850 },
+  // KÜLÖNLEGES
+  { id:22, name:'BBQ BACON',    desc:'BBQ alap, sonka, bacon, sajt',                                          price:2950, cat:2950 },
+  { id:23, name:'FARMER',       desc:'tejfölös alap, sonka, tarja, bacon, lilahagyma, sajt',                  price:2950, cat:2950 },
+  { id:24, name:'CRISPY',       desc:'tejfölös alap, sonka, tarja, bacon, pepperoni, tojás, sajt',            price:2950, cat:2950 },
+  { id:25, name:'GÖRÖG',        desc:'paradicsomos alap, feta, olajbogyó, lilahagyma, sajt',                  price:2950, cat:2950 },
+  { id:26, name:'GYROS',        desc:'BBQ alap, gyros, lilahagyma, feta, paradicsom, sajt',                   price:2950, cat:2950 },
+  { id:27, name:'SZIESZTA',     desc:'tejfölös alap, tarja, gomba, kukorica, lilahagyma, sajt',               price:2950, cat:2950 },
+  { id:28, name:'KIRÁLY',       desc:'paradicsomos alap, kolbász, bacon, tejfölös polty, füstölt sajt',       price:2950, cat:2950 },
+  { id:29, name:'MAGYAROS',     desc:'paradicsomos alap, sonka, tarja, kolbász, lilahagyma, sajt',            price:2950, cat:2950 },
+  { id:30, name:'MERÉSZ',       desc:'csípős tejfölös alap, tarja, jalapeño, pepperoni, csípős szalámi',      price:2950, cat:2950 },
+  { id:31, name:'AMERIKAI',     desc:'tejfölös alap, csirke, oregáno, sonka, gomba, füstölt sajt',            price:2950, cat:2950 },
+  { id:32, name:'HUSIMÁDÓ',     desc:'paradicsomos alap, sonka, szalámi, kolbász, bacon, sajt',               price:2950, cat:2950 },
+  { id:33, name:'REMETE',       desc:'paradicsomos alap, csirke, pepperoni, feta, füstölt sajt',              price:2950, cat:2950 },
+  { id:34, name:'MEXIKÓI',      desc:'paradicsomos alap, csirke, paprika, jalapeño, gomba, sajt',             price:2950, cat:2950 },
+  { id:35, name:'JALAPEÑO',     desc:'csípős paradicsomos alap, szalámi, jalapeño, lilahagyma, sajt',         price:2950, cat:2950 },
+  { id:36, name:'FÜSTÖS',       desc:'tejfölös alap, füstölt tarja, füstölt kolbász, lilahagyma, sajt',       price:2950, cat:2950 },
+  { id:37, name:'RIZIKÓS',      desc:'csípős paradicsomos alap, tarja, szalámi, kukorica, csípős szalámi',    price:2950, cat:2950 },
+  { id:38, name:'MAXIMUS',      desc:'tejfölös alap, sonka, kolbász, szalámi, bacon, csípős szalámi, pepperoni', price:2950, cat:2950 },
+  { id:39, name:'CSEMEGE',      desc:'tejfölös alap, tarja, csemege uborka, kukorica, füstölt sajt',          price:2950, cat:2950 },
+  { id:40, name:'JURTA',        desc:'paradicsomos alap, szalámi, bacon, gyöngyihagyma, tojás, sajt',         price:2950, cat:2950 },
+  { id:41, name:'ÍNYENC',       desc:'paradicsomos alap, csirke, sonka, tarja, feta, olajbogyó, pepperoni',   price:2950, cat:2950 },
+  { id:42, name:'FŐNÖK',        desc:'paradicsomos alap, csirke, sonka, kukorica, lilahagyma, sajt',          price:2950, cat:2950 },
+  { id:43, name:'MONTE CARLO',  desc:'tejfölös alap, csirke, sonka, tarja, csípős szalámi, tojás, jalapeño', price:2950, cat:2950 },
+  { id:44, name:'GENGSZTER',    desc:'tejfölös alap, csirke, kolbász, szalámi, kukorica, lilahagyma',         price:2950, cat:2950 },
+  { id:45, name:'SPECIÁLIS',    desc:'csípős tejfölös alap, bacon, tarja, kolbász, szalámi, sajt',            price:2950, cat:2950 },
+  { id:46, name:'MESTER',       desc:'tejfölös alap, sonka, tarja, kolbász, szalámi, sajt',                   price:2950, cat:2950 },
+  { id:47, name:'DUPLA',        desc:'paradicsomos alap, dupla sonka, dupla sajt',                            price:2950, cat:2950 },
+  { id:48, name:'MAFFIA',       desc:'paradicsomos alap, kolbász, mozzarella, lilahagyma, sajt',              price:2950, cat:2950 },
+  { id:49, name:'VEGAS',        desc:'paradicsomos alap, dupla sonka, dupla kolbász, dupla sajt',             price:2950, cat:2950 },
+  { id:50, name:'NÉGY KÍVÁNSÁG',desc:'választható alap + 4 feltét (megjegyzésnél add meg)',                   price:2950, cat:2950 },
+];
+
+const catLabels = {
+  2350: 'Alap',
+  2650: 'Klasszik',
+  2850: 'Prémium',
+  2950: 'Különleges'
+};
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let cart = {};          // id → qty
+let orderType = 'delivery';
+const DELIVERY_FEE = 0;
+const DELIVERY_LABEL = 'Ingyenes';
+let activeFilter = 'all';
+
+// ─────────────────────────────────────────
+//  RENDER PIZZA LIST
+// ─────────────────────────────────────────
+function renderPizzas() {
+  const list = document.getElementById('pizzaList');
+  list.innerHTML = '';
+
+  const filtered = activeFilter === 'all'
+    ? pizzas
+    : pizzas.filter(p => p.cat === parseInt(activeFilter));
+
+  let lastCat = null;
+  filtered.forEach(p => {
+    if (activeFilter === 'all' && p.cat !== lastCat) {
+      lastCat = p.cat;
+      const sec = document.createElement('div');
+      sec.className = 'pizza-section-title';
+      sec.textContent = catLabels[p.cat];
+      list.appendChild(sec);
+    }
+    const qty = cart[p.id] || 0;
+    const card = document.createElement('div');
+    card.className = 'pizza-card';
+    card.innerHTML = `
+      <div class="pizza-info">
+        <div class="pizza-name">${p.name}</div>
+        <div class="pizza-desc">${p.desc}</div>
+      </div>
+      <div class="pizza-price">${p.price.toLocaleString('hu-HU')}<span>Ft</span></div>
+      <div class="qty-ctrl">
+        <button class="qty-btn minus" data-id="${p.id}" data-delta="-1">−</button>
+        <div class="qty-num ${qty > 0 ? 'active' : ''}" id="qty-${p.id}">${qty}</div>
+        <button class="qty-btn plus"  data-id="${p.id}" data-delta="1">+</button>
+      </div>
+    `;
+    // touchend: azonnal reagál az első érintésre iOS-on is
+    card.querySelectorAll('.qty-btn').forEach(function(btn) {
+      btn.addEventListener('touchend', function(e) {
+        e.preventDefault(); // megakadályozza a késleltetett click eseményt
+        updateQty(parseInt(btn.dataset.id), parseInt(btn.dataset.delta));
+      }, { passive: false });
+      btn.addEventListener('click', function() {
+        updateQty(parseInt(btn.dataset.id), parseInt(btn.dataset.delta));
+      });
+    });
+    list.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────
+//  CART LOGIC
+// ─────────────────────────────────────────
+function updateQty(id, delta) {
+  const cur = cart[id] || 0;
+  const next = Math.max(0, cur + delta);
+  if (next === 0) delete cart[id];
+  else cart[id] = next;
+
+  // update qty display
+  const el = document.getElementById('qty-' + id);
+  if (el) {
+    el.textContent = next;
+    el.classList.toggle('active', next > 0);
+  }
+  renderCart();
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  renderPizzas();
+  renderCart();
+}
+
+function getSubtotal() {
+  return Object.entries(cart).reduce((sum, [id, qty]) => {
+    const p = pizzas.find(x => x.id === parseInt(id));
+    return sum + (p ? p.price * qty : 0);
+  }, 0);
+}
+
+function getTotal() {
+  const sub = getSubtotal();
+  return sub + (orderType === 'delivery' && sub > 0 ? DELIVERY_FEE : 0);
+}
+
+function getCartCount() {
+  return Object.values(cart).reduce((a, b) => a + b, 0);
+}
+
+function renderCart() {
+  const count   = getCartCount();
+  const sub     = getSubtotal();
+  const total   = getTotal();
+  const isEmpty = count === 0;
+
+  // Update count badge
+  document.getElementById('cartCount').textContent = count;
+
+  // Desktop cart items
+  const itemsEl = document.getElementById('cartItems');
+  if (isEmpty) {
+    itemsEl.innerHTML = '<div class="cart-empty"><span class="cart-empty-icon">🍕</span><span>Még üres a kosár</span></div>';
+  } else {
+    itemsEl.innerHTML = Object.entries(cart).map(([id, qty]) => {
+      const p = pizzas.find(x => x.id === parseInt(id));
+      if (!p) return '';
+      return `<div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-qty">${qty} × ${p.price.toLocaleString('hu-HU')} Ft</div>
+        </div>
+        <div class="cart-item-price">${(p.price * qty).toLocaleString('hu-HU')} Ft</div>
+        <button class="cart-item-remove" onclick="removeFromCart(${p.id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Desktop totals
+  document.getElementById('subtotal').textContent  = sub.toLocaleString('hu-HU') + ' Ft';
+  document.getElementById('deliveryFee').textContent = orderType === 'delivery'
+    ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes';
+  document.getElementById('totalPrice').innerHTML   = total.toLocaleString('hu-HU') + ' <span>Ft</span>';
+
+  // Mobile bar
+  const bar = document.getElementById('mobileCartBar');
+  bar.classList.toggle('hidden', isEmpty);
+  document.getElementById('mobileTotal').textContent = total.toLocaleString('hu-HU') + ' Ft';
+
+  // Mobile cart items
+  const mItems = document.getElementById('mobileCartItems');
+  if (isEmpty) {
+    mItems.innerHTML = '<div class="cart-empty"><span class="cart-empty-icon">🍕</span><span>Még üres a kosár</span></div>';
+  } else {
+    mItems.innerHTML = Object.entries(cart).map(([id, qty]) => {
+      const p = pizzas.find(x => x.id === parseInt(id));
+      if (!p) return '';
+      return `<div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-qty">${qty} × ${p.price.toLocaleString('hu-HU')} Ft</div>
+        </div>
+        <div class="cart-item-price">${(p.price * qty).toLocaleString('hu-HU')} Ft</div>
+        <button class="cart-item-remove" onclick="removeFromCart(${p.id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Mobile totals
+  document.getElementById('mSubtotal').textContent   = sub.toLocaleString('hu-HU') + ' Ft';
+  document.getElementById('mDeliveryFee').textContent = orderType === 'delivery'
+    ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes';
+  document.getElementById('mTotalPrice').innerHTML    = total.toLocaleString('hu-HU') + ' <span>Ft</span>';
+
+  // Submit button state
+  ['submitBtn','mSubmitBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = isEmpty;
+  });
+}
+
+// ─────────────────────────────────────────
+//  ORDER TYPE TOGGLE
+// ─────────────────────────────────────────
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    orderType = this.dataset.type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.type-btn[data-type="' + orderType + '"]')
+      .forEach(b => b.classList.add('active'));
+    // Show/hide address
+    document.querySelectorAll('.address-fields').forEach(el => {
+      el.classList.toggle('show', orderType === 'delivery');
+    });
+    renderCart();
+  });
+});
+
+// ─────────────────────────────────────────
+//  FILTER
+// ─────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    activeFilter = this.dataset.filter;
+    renderPizzas();
+  });
+});
+
+// ─────────────────────────────────────────
+//  MOBILE CART DRAWER
+// ─────────────────────────────────────────
+function openMobileCart() {
+  const drawer = document.getElementById('mobileCartDrawer');
+  const sheet  = document.getElementById('mobileCartSheet');
+  drawer.style.display = 'flex';
+  setTimeout(() => sheet.classList.add('open'), 10);
+}
+function closeMobileCart() {
+  const sheet = document.getElementById('mobileCartSheet');
+  sheet.classList.remove('open');
+  setTimeout(() => {
+    document.getElementById('mobileCartDrawer').style.display = 'none';
+  }, 400);
+}
+
+// ─────────────────────────────────────────
+//  SUBMIT ORDER
+// ─────────────────────────────────────────
+function buildOrderText() {
+  return Object.entries(cart).map(([id, qty]) => {
+    const p = pizzas.find(x => x.id === parseInt(id));
+    return `${qty}× ${p.name} – ${(p.price * qty).toLocaleString('hu-HU')} Ft`;
+  }).join('\n');
+}
+
+function submitOrder(isMobile) {
+  const prefix = isMobile ? 'm' : '';
+  const ids = isMobile
+    ? { name: 'mCustName', phone: 'mCustPhone', address: 'mCustAddress', note: 'mCustNote' }
+    : { name: 'custName',  phone: 'custPhone',  address: 'custAddress',  note: 'custNote'  };
+  const name    = document.getElementById(ids.name).value.trim();
+  const phone   = document.getElementById(ids.phone).value.trim();
+  const address = orderType === 'delivery'
+    ? document.getElementById(ids.address).value.trim() : '';
+  const note    = document.getElementById(ids.note).value.trim();
+
+  if (!name || !phone || (orderType === 'delivery' && !address)) {
+    alert('Kérlek töltsd ki a kötelező mezőket!');
+    return;
+  }
+
+  const btn = document.getElementById(isMobile ? 'mSubmitBtn' : 'submitBtn');
+  btn.textContent = 'Küldés...';
+  btn.disabled = true;
+
+  const params = {
+    to_email:     PIZZERIA_EMAIL,
+    order_type:   orderType === 'delivery' ? 'Házhoz szállítás' : 'Elvitel',
+    customer_name:  name,
+    customer_phone: phone,
+    customer_address: address || '–',
+    order_items:  buildOrderText(),
+    delivery_fee: orderType === 'delivery' ? (DELIVERY_FEE > 0 ? DELIVERY_FEE + ' Ft' : DELIVERY_LABEL) : 'Ingyenes',
+    order_total:  getTotal().toLocaleString('hu-HU') + ' Ft',
+    customer_note: note || '–',
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(function() {
+      document.getElementById('confirmation').classList.add('show');
+    })
+    .catch(function(err) {
+      console.error('EmailJS hiba:', err);
+      alert('Hiba történt a küldés során. Hívj minket: 06/30-683-4105');
+      btn.textContent = 'Rendelés leadása';
+      btn.disabled = false;
+    });
+}
+
+document.getElementById('submitBtn').addEventListener('click',  () => submitOrder(false));
+document.getElementById('mSubmitBtn').addEventListener('click', () => submitOrder(true));
+
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+renderPizzas();
+renderCart();
+
+// Cím mező megjelenítése alapból (kiszállítás az alapértelmezett)
+document.querySelectorAll('.address-fields').forEach(el => el.classList.add('show'));
+</script>
+</body>
+</html>

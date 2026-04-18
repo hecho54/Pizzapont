@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizza Pont – Nagykőrös kedvenc pizzázója</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+
+/* =====================
+   CUSTOM PROPERTIES
+===================== */
+:root {
+  --dark:      #111111;
+  --dark-2:    #1A1A1A;
+  --red:       #D62B2B;
+  --red-dark:  #A81F1F;
+  --red-light: #E84040;
+  --cream:     #FDF6EE;
+  --gray:      #888888;
+  --muted:     #999999;
+  --ease:      cubic-bezier(.25,.46,.45,.94);
+}
+
+/* =====================
+   RESET
+===================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+/* =====================
+   NAV
+===================== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.9rem 1.5rem;
+  background: rgba(17,17,17,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(214,43,43,0.18);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.nav-logo-badge {
+  width: 34px; height: 34px;
+  border-radius: 50%; overflow: hidden;
+  border: 1.5px solid var(--red);
+  flex-shrink: 0;
+}
+.nav-logo-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nav-logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 19px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: white;
+}
+.nav-logo-text em { color: var(--red); font-style: normal; }
+.nav-links { display: none; list-style: none; gap: 2rem; }
+.nav-links a {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  color: rgba(255,255,255,0.55);
+  transition: color 0.3s var(--ease);
+}
+.nav-links a:hover { color: white; }
+.nav-cta {
+  background: var(--red); color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  padding: 0.5rem 1.1rem;
+  border: 2px solid var(--red);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+.nav-cta:hover { background: white; color: var(--red); }
+
+/* =====================
+   HERO – MOBILE FIRST
+===================== */
+.hero {
+  display: flex;
+  flex-direction: column;
+  padding-top: 54px; /* nav height */
+}
+
+/* --- LEFT PANEL (black) --- */
+.hero-left {
+  background: var(--dark);
+  padding: 3rem 1.5rem 2.5rem;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  /* animation start state – JS triggers */
+  opacity: 0;
+  transform: translateY(-24px);
+}
+
+/* Nagy halványított háttér-watermark */
+.hero-left::before {
+  content: 'PP';
+  position: absolute;
+  right: -30px; bottom: -60px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 420px; font-weight: 900; line-height: 1;
+  letter-spacing: -30px;
+  color: rgba(255,255,255,0.028);
+  pointer-events: none; user-select: none;
+  z-index: 0;
+}
+
+
+/* Forgó oldal-label */
+.hero-side-label {
+  position: absolute;
+  left: -4.2rem; top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  white-space: nowrap;
+  font-size: 9px; font-weight: 700; letter-spacing: 5px;
+  text-transform: uppercase; color: rgba(255,255,255,0.15);
+  z-index: 1;
+}
+
+/* Jobb felső sarokakcentus */
+.hero-corner {
+  position: absolute; top: 2rem; right: 2rem;
+  width: 32px; height: 32px;
+  border-top: 2px solid var(--red);
+  border-right: 2px solid var(--red);
+  z-index: 1;
+}
+/* Bal alsó sarokakcentus */
+.hero-corner-bl {
+  position: absolute; bottom: 2rem; left: 2rem;
+  width: 32px; height: 32px;
+  border-bottom: 2px solid rgba(214,43,43,0.4);
+  border-left: 2px solid rgba(214,43,43,0.4);
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--red-light);
+  margin-bottom: 1.1rem;
+  position: relative; z-index: 1;
+}
+.hero-eyebrow::before {
+  content: ''; display: block;
+  width: 22px; height: 1.5px;
+  background: var(--red); flex-shrink: 0;
+}
+
+.hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; line-height: 0.87;
+  margin-bottom: 1.3rem;
+  position: relative; z-index: 1;
+}
+.title-white {
+  display: block;
+  font-size: clamp(84px, 23vw, 144px);
+  color: white; letter-spacing: -1px;
+}
+.title-red {
+  display: block;
+  font-size: clamp(84px, 23vw, 144px);
+  color: var(--red); font-style: italic;
+  letter-spacing: -1px;
+}
+
+.hero-slogan {
+  font-size: 14px; font-style: italic;
+  color: rgba(255,255,255,0.48);
+  margin-bottom: 2rem; line-height: 1.55;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(214,43,43,0.5);
+  position: relative; z-index: 1;
+}
+
+/* CTA – stacked on mobile, row on larger */
+.hero-cta {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  margin-bottom: 2rem;
+  position: relative; z-index: 1;
+}
+.btn-primary {
+  display: block; text-align: center;
+  background: var(--red); color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; text-decoration: none;
+  padding: 0.9rem 1.5rem;
+  border: 2px solid var(--red);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+.btn-primary:hover { background: white; color: var(--red); }
+.btn-outline {
+  display: block; text-align: center;
+  background: transparent; color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; text-decoration: none;
+  padding: 0.9rem 1.5rem;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.btn-outline:hover { background: white; color: var(--dark); border-color: white; }
+
+/* Stat pills – 2×2 grid on mobile */
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  position: relative; z-index: 1;
+}
+.stat-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-left: 2px solid rgba(214,43,43,0.0);
+  padding: 0.75rem 1rem;
+  display: flex; align-items: baseline; gap: 6px;
+  position: relative; overflow: hidden;
+  transition: background 0.3s var(--ease), border-left-color 0.3s var(--ease);
+  /* animation start state */
+  opacity: 0;
+}
+.stat-pill:hover {
+  background: rgba(255,255,255,0.07);
+  border-left-color: var(--red);
+}
+/* Shimmer sweep on hover */
+.stat-pill::after {
+  content: '';
+  position: absolute; top: 0; left: -100%; bottom: 0;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 0.5s var(--ease);
+}
+.stat-pill:hover::after { left: 150%; }
+.stat-pill strong {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px; font-weight: 900;
+  color: white; line-height: 1;
+}
+.stat-pill span {
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.3px;
+}
+
+/* --- RIGHT PANEL (red) --- */
+.hero-right {
+  background: var(--red);
+  min-height: 360px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  /* animation start state */
+  opacity: 0;
+}
+
+/* Grain texture on red */
+.hero-right::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  pointer-events: none; z-index: 0;
+}
+
+/* Radial white centre glow */
+.hero-right::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 62%);
+  pointer-events: none; z-index: 0;
+}
+
+/* Logo wrapper */
+.logo-wrap {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 280px; height: 280px;
+  animation: float 5s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+/* ── Fehér tányér kör ── */
+.logo-glass {
+  position: absolute;
+  width: 92%; height: 92%;
+  border-radius: 50%;
+  background: white;
+  box-shadow:
+    0 0 0 6px rgba(255,255,255,0.18),
+    0 20px 60px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+/* ── Logo kép ── */
+.logo-img {
+  width: 74%; height: 74%;
+  border-radius: 50%;
+  object-fit: cover;
+  position: relative; z-index: 1;
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,0.85),
+    0 0 0 8px rgba(255,255,255,0.12),
+    0 12px 40px rgba(0,0,0,0.28);
+  transition: transform 0.4s var(--ease);
+}
+.logo-wrap:hover .logo-img { transform: scale(1.04); }
+
+/* #1 badge */
+.badge-one {
+  position: absolute;
+  top: 1.2rem; right: 1.2rem;
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  border: 2px solid var(--red-light);
+  background: var(--dark);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 900;
+  color: white; line-height: 1.1; text-align: center;
+  z-index: 3;
+  box-shadow: 0 0 0 1px rgba(214,43,43,0.35), 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.3s var(--ease);
+}
+.badge-one:hover { transform: scale(1.08); }
+.badge-one small {
+  font-size: 7px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* =====================
+   KEYFRAMES
+===================== */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-44px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(44px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.do-slide-left  { animation: slideInLeft  0.7s var(--ease) forwards; }
+.do-slide-right { animation: slideInRight 0.7s var(--ease) forwards; }
+.do-slide-down  { animation: slideDown    0.6s var(--ease) forwards; }
+.do-fade-in     { animation: fadeIn       0.7s var(--ease) 0.3s forwards; }
+.do-fade-up     { animation: fadeUp       0.5s var(--ease) forwards; }
+
+/* =====================
+   MENU SECTION
+===================== */
+#menu { background: var(--cream); }
+
+.section-header {
+  padding: 3.5rem 1.5rem 2rem;
+  text-align: center;
+}
+.section-tag {
+  display: block;
+  font-size: 10px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 0.7rem;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(38px, 9vw, 62px);
+  font-weight: 800; letter-spacing: 1px;
+  color: var(--dark); line-height: 1;
+}
+.section-title em {
+  font-weight: 700; font-style: italic;
+  color: var(--red);
+}
+
+.menu-images {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 0 1.5rem 3.5rem;
+}
+.menu-img-wrap {
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+.menu-img-wrap img {
+  width: 100%; display: block;
+  transition: transform 0.55s var(--ease);
+}
+.menu-img-wrap:hover img { transform: scale(1.03); }
+
+/* =====================
+   ABOUT SECTION
+===================== */
+.about-section {
+  display: flex; flex-direction: column;
+}
+
+.about-left {
+  background: var(--dark-2);
+  padding: 3.5rem 1.5rem;
+  position: relative; overflow: hidden;
+}
+.about-left::after {
+  content: '';
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 3px; background: var(--red);
+}
+/* Decorative bg number */
+.about-left::before {
+  content: '10+';
+  position: absolute; bottom: -10px; right: -10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 200px; font-weight: 900; line-height: 1;
+  color: rgba(214,43,43,0.06);
+  pointer-events: none; user-select: none;
+}
+
+.about-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--red-light);
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 1.2rem;
+}
+.about-tag::before { content: ''; width: 20px; height: 1px; background: var(--red); }
+
+.about-left h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(42px, 10vw, 64px);
+  font-weight: 800; color: white;
+  line-height: 0.93; letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+.about-left h2 em {
+  display: block; font-style: italic;
+  color: var(--red-light); font-size: 0.8em; font-weight: 700;
+}
+.about-divider {
+  width: 34px; height: 2px;
+  background: var(--red); margin: 1.5rem 0;
+}
+.about-left p {
+  font-size: 13.5px; color: rgba(255,255,255,0.52);
+  line-height: 1.85; max-width: 340px;
+  border-left: 2px solid rgba(214,43,43,0.3);
+  padding-left: 0.9rem;
+}
+.about-stats {
+  display: flex; gap: 2rem; margin-top: 2.5rem; flex-wrap: wrap;
+}
+.about-stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 40px; font-weight: 800;
+  color: var(--red-light); line-height: 1;
+}
+.about-stat-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-top: 2px;
+}
+
+.about-image {
+  position: relative; overflow: hidden; min-height: 280px;
+}
+.about-image img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  display: block;
+  transition: transform 0.6s var(--ease);
+}
+.about-image:hover img { transform: scale(1.04); }
+
+.about-right {
+  background: var(--cream);
+  padding: 3rem 1.5rem;
+  border-top: 3px solid var(--red);
+}
+.feature-item {
+  display: flex; gap: 1.4rem; align-items: flex-start;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  position: relative;
+}
+.feature-item:first-child { padding-top: 0; }
+.feature-item:last-child { border-bottom: none; padding-bottom: 0; }
+.feature-icon {
+  width: 46px; height: 46px; flex-shrink: 0;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 800;
+  color: white; letter-spacing: 1px;
+  transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.feature-item:hover .feature-icon { background: var(--red-dark); transform: scale(1.07); }
+.feature-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: 0.3px;
+  color: var(--dark); margin-bottom: 4px;
+  transition: color 0.3s var(--ease);
+}
+.feature-item:hover .feature-title { color: var(--red); }
+.feature-desc {
+  font-size: 13px; color: var(--gray); line-height: 1.65;
+}
+
+/* =====================
+   CONTACT
+===================== */
+.contact-section {
+  background: var(--dark);
+  padding: 3.5rem 1.5rem;
+}
+.contact-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--red-light);
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 1rem;
+}
+.contact-tag::before { content: ''; width: 20px; height: 1px; background: var(--red); }
+.contact-section h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(42px, 10vw, 62px);
+  font-weight: 800; color: white;
+  line-height: 0.93; letter-spacing: 1px;
+  margin-bottom: 2.2rem;
+}
+.contact-section h2 span { color: var(--red); font-style: italic; }
+.contact-info { display: flex; flex-direction: column; gap: 0; }
+.contact-row {
+  font-size: 14px; color: rgba(255,255,255,0.52);
+  display: flex; gap: 1rem; align-items: baseline;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.contact-row:last-child { border-bottom: none; }
+.contact-row strong {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--red-light);
+  min-width: 60px; flex-shrink: 0;
+}
+
+/* =====================
+   FOOTER
+===================== */
+footer {
+  background: #090909;
+  padding: 1.5rem 1.5rem;
+  display: flex; flex-direction: column;
+  gap: 0.4rem; align-items: center; text-align: center;
+  border-top: 1px solid rgba(214,43,43,0.12);
+}
+.footer-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 19px; font-weight: 800;
+  letter-spacing: 2px; color: white;
+}
+.footer-logo span { color: var(--red); }
+.footer-copy {
+  font-size: 11px; color: rgba(255,255,255,0.22);
+  letter-spacing: 0.3px;
+}
+
+/* =====================
+   TABLET  768px+
+===================== */
+@media (min-width: 768px) {
+  nav { padding: 1rem 3rem; }
+  .nav-links { display: flex; }
+
+  .hero-left { padding: 4rem 3rem 3.5rem; }
+  .hero-cta { flex-direction: row; }
+  .btn-primary,
+  .btn-outline { display: inline-block; }
+  .hero-stats { grid-template-columns: repeat(4, 1fr); }
+  .hero-right { min-height: 500px; }
+  .logo-wrap { width: 370px; height: 370px; }
+
+  .section-header { padding: 4rem 3rem 2.5rem; }
+  .menu-images { grid-template-columns: 1fr 1fr; padding: 0 3rem 4rem; gap: 1.2rem; }
+
+  .about-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .about-left   { grid-column: 1; grid-row: 1; padding: 4rem 3rem; }
+  .about-image  { grid-column: 2; grid-row: 1 / 3; min-height: 480px; }
+  .about-right  { grid-column: 1; grid-row: 2; border-top: none; border-left: 3px solid var(--red); padding: 3rem; }
+
+  .contact-section { padding: 5rem 3rem; }
+  footer { flex-direction: row; justify-content: space-between; padding: 1.5rem 3rem; text-align: left; align-items: center; }
+}
+
+/* =====================
+   DESKTOP  1025px+
+===================== */
+@media (min-width: 1025px) {
+  nav { padding: 1.2rem 5rem; }
+
+  .hero {
+    flex-direction: row;
+    min-height: 100vh;
+    padding-top: 68px;
+    background: var(--dark);
+  }
+  .hero-left {
+    flex: 0 0 55%;
+    padding: 5rem 5rem 5rem 7rem;
+  }
+  .hero-right {
+    flex: 0 0 48%;        /* slightly wider so clip doesn't leave gap */
+    min-height: unset;
+    /* Diagonal divider ~8° */
+    clip-path: polygon(80px 0, 100% 0, 100% 100%, 0 100%);
+    margin-left: -40px;   /* pull over hero-left to fill diagonal */
+  }
+  .logo-wrap { width: 420px; height: 420px; }
+
+  .title-white,
+  .title-red { font-size: clamp(100px, 8.5vw, 144px); }
+
+  .hero-cta { flex-direction: row; }
+  .btn-primary,
+  .btn-outline { padding: 0.9rem 2.2rem; }
+  .hero-stats { grid-template-columns: repeat(4, 1fr); }
+
+  /* ABOUT – 3 columns */
+  .about-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+  }
+  .about-left  { grid-column: 1; grid-row: 1; padding: 5rem 4rem; }
+  .about-image { grid-column: 2; grid-row: 1; min-height: 520px; }
+  .about-right {
+    grid-column: 3; grid-row: 1;
+    padding: 4rem 3.5rem;
+    border-top: none;
+    border-left: 3px solid var(--red);
+  }
+  .feature-item::before {
+    content: '';
+    position: absolute; left: -3.5rem; top: 0; bottom: 0;
+    width: 3px; background: var(--red);
+    transform: scaleY(0);
+    transition: transform 0.3s var(--ease);
+    transform-origin: center;
+  }
+  .feature-item:hover::before { transform: scaleY(1); }
+
+  .section-header { padding: 5rem 5rem 3rem; text-align: center; }
+  .menu-images { padding: 0 5rem 5rem; gap: 1.5rem; }
+  .contact-section { padding: 6rem 7rem; }
+  footer { padding: 1.8rem 7rem; }
+}
+
+/* =====================
+   HAMBURGER MENÜ
+===================== */
+.nav-burger {
+  display: flex; flex-direction: column; justify-content: center; gap: 5px;
+  background: none; border: none; cursor: pointer;
+  padding: 6px; width: 36px; height: 36px; flex-shrink: 0;
+}
+.nav-burger span {
+  display: block; width: 22px; height: 2px;
+  background: white; border-radius: 2px;
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+}
+.nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Lenyíló mobil nav */
+.nav-mobile {
+  position: fixed; top: 54px; left: 0; right: 0; z-index: 99;
+  background: rgba(15,15,15,0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(214,43,43,0.2);
+  display: flex; flex-direction: column;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease);
+}
+.nav-mobile.open { max-height: 320px; }
+.nav-mobile-link {
+  font-size: 13px; font-weight: 600; letter-spacing: 2.5px;
+  text-transform: uppercase; text-decoration: none;
+  color: rgba(255,255,255,0.6);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: color 0.2s, background 0.2s;
+}
+.nav-mobile-link:hover { color: white; background: rgba(255,255,255,0.03); }
+.nav-mobile-cta {
+  display: block; text-align: center;
+  background: var(--red); color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  padding: 1rem 1.5rem; margin: 1rem 1.5rem 1.5rem;
+  transition: background 0.3s var(--ease);
+}
+.nav-mobile-cta:hover { background: var(--red-dark); }
+
+/* Mobil: elrejt / megmutat */
+@media (max-width: 767px) {
+  .nav-cta { display: none; }
+}
+@media (min-width: 768px) {
+  .nav-burger { display: none; }
+  .nav-mobile { display: none !important; }
+}
+
+/* =====================
+   SMALL PHONE  ≤480px
+===================== */
+@media (max-width: 480px) {
+  .hero-left { padding: 2.5rem 1.2rem 2rem; }
+  .title-white, .title-red { font-size: clamp(72px, 22vw, 90px); }
+  .hero-corner, .hero-corner-bl { display: none; }
+  .logo-wrap { width: 240px; height: 240px; }
+  .hero-right { min-height: 320px; }
+  .hero-stats { gap: 0.45rem; }
+  .stat-pill { padding: 0.6rem 0.75rem; }
+  .stat-pill strong { font-size: 20px; }
+  .about-left { padding: 2.5rem 1.2rem; }
+  .about-right { padding: 2.5rem 1.2rem; }
+  .contact-section { padding: 2.5rem 1.2rem; }
+  .section-header { padding: 2.5rem 1.2rem 1.5rem; }
+  .menu-images { padding: 0 1.2rem 2.5rem; gap: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-badge"><img src="Images/Cover1.jpg" alt="Pizza Pont logó"></div>
+    <span class="nav-logo-text">Pizza <em>Pont</em></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#menu">Étlap</a></li>
+    <li><a href="#about">Rólunk</a></li>
+    <li><a href="#contact">Kapcsolat</a></li>
+  </ul>
+  <a href="rendeles.html" class="nav-cta">Rendelés</a>
+  <button class="nav-burger" id="navBurger" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="#menu"    class="nav-mobile-link">Étlap</a>
+  <a href="#about"   class="nav-mobile-link">Rólunk</a>
+  <a href="#contact" class="nav-mobile-link">Kapcsolat</a>
+  <a href="rendeles.html" class="nav-mobile-cta">Rendelés</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+
+  <!-- LEFT – black panel -->
+  <div class="hero-left">
+<div class="hero-corner"></div>
+    <div class="hero-corner-bl"></div>
+    <div class="hero-eyebrow">Nagykőrös kedvenc pizzázója</div>
+    <h1 class="hero-title">
+      <span class="title-white">PIZZA</span>
+      <span class="title-red">PONT</span>
+    </h1>
+    <p class="hero-slogan">Ahol minden falat egy élmény.</p>
+    <div class="hero-cta">
+      <a href="rendeles.html" class="btn-primary">Étlap megtekintése</a>
+      <a href="rendeles.html" class="btn-outline">Rendelés</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill"><strong>30+</strong><span>pizzafajta</span></div>
+      <div class="stat-pill"><strong>45'</strong><span>kiszállítás</span></div>
+      <div class="stat-pill"><strong>5★</strong><span>értékelés</span></div>
+      <div class="stat-pill"><strong>100%</strong><span>friss</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT – red panel -->
+  <div class="hero-right">
+    <div class="logo-wrap">
+      <div class="logo-glass"></div>
+      <img src="Images/Cover1.jpg" alt="Pizza Pont logó" class="logo-img">
+    </div>
+    <div class="badge-one">#1<small>Nagykőrös</small></div>
+  </div>
+
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="section-header">
+    <span class="section-tag">Étlapunk</span>
+    <h2 class="section-title">Legjobb <em>pizzáink</em></h2>
+  </div>
+  <div class="menu-images">
+    <div class="menu-img-wrap">
+      <img src="Images/Menu1.jpg" alt="Étlap 1. oldal">
+    </div>
+    <div class="menu-img-wrap">
+      <img src="Images/Menu2.jpg" alt="Étlap 2. oldal">
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="about-section">
+  <div class="about-left">
+    <div class="about-tag">Rólunk</div>
+    <h2>Minőség<br><em>minden falatban.</em></h2>
+    <div class="about-divider"></div>
+    <p>A Pizza Pont Nagykőrös szívében kínál autentikus, kézzel készített pizzákat prémium alapanyagokból. Nálunk nem kompromisszum, hanem szenvedély az alapanyag.</p>
+    <div class="about-stats">
+      <div>
+        <div class="about-stat-num">10+</div>
+        <div class="about-stat-label">Év tapasztalat</div>
+      </div>
+      <div>
+        <div class="about-stat-num">30+</div>
+        <div class="about-stat-label">Pizzafajta</div>
+      </div>
+      <div>
+        <div class="about-stat-num">5★</div>
+        <div class="about-stat-label">Értékelés</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-image">
+    <img src="Images/Bódé.png" alt="Pizza Pont bódé">
+  </div>
+  <div class="about-right">
+    <div class="feature-item">
+      <div class="feature-icon">01</div>
+      <div>
+        <div class="feature-title">Friss tészta naponta</div>
+        <div class="feature-desc">Minden nap frissen készítjük a tésztát, hogy a legjobb minőséget kaphassa.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">02</div>
+      <div>
+        <div class="feature-title">Prémium feltétek</div>
+        <div class="feature-desc">Csak válogatott, friss alapanyagokat használunk – kompromisszum nélkül.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">03</div>
+      <div>
+        <div class="feature-title">Gyors kiszállítás</div>
+        <div class="feature-desc">45 percen belül kiszállítjük Nagykőrösen belül – melegen, frissen.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section">
+  <div class="contact-tag">Kapcsolat</div>
+  <h2>Rendeld meg<br><span>most!</span></h2>
+  <div class="contact-info">
+    <div class="contact-row"><strong>Cím</strong> Nagykőrös, [utca, házszám]</div>
+    <div class="contact-row"><strong>Telefon</strong> +36 XX XXX XXXX</div>
+    <div class="contact-row"><strong>Email</strong> info@pizzapont.hu</div>
+    <div class="contact-row"><strong>Nyitva</strong> H–V: 11:00 – 22:00</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Pizza <span>Pont</span></div>
+  <div class="footer-copy">© 2026 Pizza Pont · Nagykőrös · Minden jog fenntartva</div>
+</footer>
+
+<script>
+(function () {
+  const isDesktop = window.innerWidth >= 1025;
+  const heroLeft  = document.querySelector('.hero-left');
+  const heroRight = document.querySelector('.hero-right');
+  const pills     = document.querySelectorAll('.stat-pill');
+
+  if (isDesktop) {
+    heroLeft.classList.add('do-slide-left');
+    heroRight.classList.add('do-slide-right');
+  } else {
+    heroLeft.classList.add('do-slide-down');
+    heroRight.classList.add('do-fade-in');
+  }
+
+  // Staggered stat pills
+  pills.forEach(function (pill, i) {
+    setTimeout(function () {
+      pill.classList.add('do-fade-up');
+    }, 560 + i * 110);
+  });
+
+  // Hamburger menü
+  var burger  = document.getElementById('navBurger');
+  var mobileNav = document.getElementById('navMobile');
+  var mobileLinks = mobileNav.querySelectorAll('a');
+
+  burger.addEventListener('click', function () {
+    burger.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+  mobileLinks.forEach(function (link) {
+    link.addEventListener('click', function () {
+      burger.classList.remove('open');
+      mobileNav.classList.remove('open');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
